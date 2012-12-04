@@ -35,12 +35,14 @@ class UniverseView(QGraphicsView):
         self.timer.timeout.connect(self.rePaint)
 
     def startAnimation(self, universe):
+        """Start the animation timer.
+        """
         self.universe = universe
-        #self.clearScene()
-        #self.drawUniverse(*self.universe.getDimension())
         self.timer.start(250)
 
     def stopAnimation(self):
+        """Stop the animation timer.
+        """
         self.timer.stop()
 
     def rePaint(self):
@@ -59,7 +61,7 @@ class UniverseView(QGraphicsView):
     def drawUniverse(self, rows, columns):
         """Draw the universe grid.
         """
-        # self.scene.setSceneRect(QRectF(0, 0, 39, 14))
+        self.scene.setSceneRect(QRectF(0, 0, rows, columns))
         # draw vertical lines
         for x in xrange(rows):
             self.scene.addLine(x, 0, x, columns, QPen(Qt.black))
@@ -121,6 +123,8 @@ class GameOfLifeApp(QDialog):
         self.setWindowTitle('Conway\'s Game of Life')
 
     def addAvailablePatterns(self):
+        """Show all available patterns from the pattern library.
+        """
         patternDir = os.path.abspath(
             os.path.join(os.path.dirname(os.path.dirname(__file__)), 
                          'patterns')
@@ -156,6 +160,8 @@ class GameOfLifeApp(QDialog):
             self.startButton.setText('&Start')
 
     def loadPopulation(self, pattern):
+        """Load the pattern from the file.
+        """
         _population = []
         for row in pattern:
             _popRow = []
