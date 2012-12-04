@@ -38,7 +38,7 @@ class UniverseView(QGraphicsView):
         """Start the animation timer.
         """
         self.universe = universe
-        self.timer.start(250)
+        self.timer.start(100)
 
     def stopAnimation(self):
         """Stop the animation timer.
