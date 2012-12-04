@@ -9,6 +9,8 @@
 
 
 import sys
+import os
+import json
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -34,7 +36,9 @@ class UniverseView(QGraphicsView):
 
     def startAnimation(self, universe):
         self.universe = universe
-        self.timer.start(1000)
+        #self.clearScene()
+        #self.drawUniverse(*self.universe.getDimension())
+        self.timer.start(250)
 
     def stopAnimation(self):
         self.timer.stop()
@@ -43,7 +47,7 @@ class UniverseView(QGraphicsView):
         """Animate the cell generations.
         """
         self.clearScene()
-        self.drawUniverse(DEFAULT_UNIV_X, DEFAULT_UNIV_Y)
+        self.drawUniverse(*self.universe.getDimension())
         self.populateCells()
         self.universe.nextGeneration()
 
@@ -58,13 +62,13 @@ class UniverseView(QGraphicsView):
         # self.scene.setSceneRect(QRectF(0, 0, 39, 14))
         # draw vertical lines
         for x in xrange(rows):
-            self.scene.addLine(x, 0, x, columns, QPen(Qt.yellow))
+            self.scene.addLine(x, 0, x, columns, QPen(Qt.black))
 
         # draw horrizontal lines
         for y in xrange(columns):
-            self.scene.addLine(0, y, rows, y, QPen(Qt.yellow))
+            self.scene.addLine(0, y, rows, y, QPen(Qt.black))
 
-        self.fitInView(self.scene.itemsBoundingRect());
+        self.fitInView(self.scene.itemsBoundingRect())
 
     def populateCells(self):
         """Populate the grid with living cells.
@@ -93,6 +97,7 @@ class GameOfLifeApp(QDialog):
         super(GameOfLifeApp, self).__init__(parent)
         # Qt Graphics view where the whole action happens
         self.universeView = UniverseView()
+        self.patterns = {}
 
         # set the window layout
         layout = QVBoxLayout()
@@ -104,6 +109,7 @@ class GameOfLifeApp(QDialog):
 
         self.patternBox = QComboBox()
         self.patternBox.addItem('Random')
+        self.addAvailablePatterns()
         self.startButton = QPushButton('&Start')
         self.startButton.clicked.connect(self.animate)
         selectionLayout.addWidget(self.patternBox)
@@ -114,21 +120,53 @@ class GameOfLifeApp(QDialog):
 
         self.setWindowTitle('Conway\'s Game of Life')
 
+    def addAvailablePatterns(self):
+        patternDir = os.path.abspath(
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), 
+                         'patterns')
+            )
+        for pattern in os.listdir(patternDir):
+            pattern = os.path.join(patternDir, pattern)
+            try:
+                pattern = json.load(open(pattern, 'rb'))
+            except Exception, why:
+                sys.stderr.write('Ignoring ' + pattern + ':' + str(why) + '\n')
+                continue
+
+            self.patternBox.addItem(pattern['name'])
+            self.patterns[pattern['name']] = pattern['pattern']
+
     def animate(self):
         """Start/Stop animating the selected pattern.
         """
         action = self.startButton.text()
-        selected = self.patternBox.currentText()
+        selected = str(self.patternBox.currentText())
         if action == '&Start':
-            auto = (selected == 'Random')
-            universe = life.Universe(auto=auto, 
-                                     rows=DEFAULT_UNIV_X, 
-                                     columns=DEFAULT_UNIV_Y)
+            universe = life.Universe()
+            if selected == 'Random':
+                universe.autoFill(DEFAULT_UNIV_X, DEFAULT_UNIV_Y)
+            else:
+                population = self.loadPopulation(self.patterns[selected])
+                universe.seed(population)
+
             self.universeView.startAnimation(universe)
             self.startButton.setText('&Stop')
         else:
             self.universeView.stopAnimation()
             self.startButton.setText('&Start')
+
+    def loadPopulation(self, pattern):
+        _population = []
+        for row in pattern:
+            _popRow = []
+            for cell in row:
+                if cell:
+                    cell = life.Cell(life.AliveState())
+                else:
+                    cell = life.Cell(life.DeadState())
+                _popRow.append(cell)
+            _population.append(_popRow)
+        return _population
 
 
 def start_app():
