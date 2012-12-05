@@ -16,6 +16,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 import life
+import loader
 
 
 DEFAULT_UNIV_X = 40
@@ -49,7 +50,8 @@ class UniverseView(QGraphicsView):
         """Animate the cell generations.
         """
         self.clearScene()
-        self.drawUniverse(*self.universe.getDimension())
+        univY, univX = self.universe.getDimension()
+        self.drawUniverse(univX, univY)
         self.populateCells()
         self.universe.nextGeneration()
 
@@ -81,7 +83,7 @@ class UniverseView(QGraphicsView):
             for cell in row:
                 colNum = row.index(cell)
                 if cell.isAlive():
-                    self.drawCellAt(rowNum, colNum)
+                    self.drawCellAt(colNum, rowNum)
 
     def drawCellAt(self, x, y):
         """Fill the cell at grid location (x, y)
@@ -132,13 +134,14 @@ class GameOfLifeApp(QDialog):
         for pattern in os.listdir(patternDir):
             pattern = os.path.join(patternDir, pattern)
             try:
-                pattern = json.load(open(pattern, 'rb'))
+                ldr = loader.PatternLoader(pattern)
+                pattern = ldr.load()
             except Exception, why:
                 sys.stderr.write('Ignoring ' + pattern + ':' + str(why) + '\n')
                 continue
 
-            self.patternBox.addItem(pattern['name'])
-            self.patterns[pattern['name']] = pattern['pattern']
+            self.patternBox.addItem(pattern.name)
+            self.patterns[pattern.name] = pattern
 
     def animate(self):
         """Start/Stop animating the selected pattern.
@@ -146,7 +149,7 @@ class GameOfLifeApp(QDialog):
         action = self.startButton.text()
         selected = str(self.patternBox.currentText())
         if action == '&Start':
-            universe = life.Universe()
+            universe = life.Universe(expand=True)
             if selected == 'Random':
                 universe.autoFill(DEFAULT_UNIV_X, DEFAULT_UNIV_Y)
             else:
@@ -163,7 +166,7 @@ class GameOfLifeApp(QDialog):
         """Load the pattern from the file.
         """
         _population = []
-        for row in pattern:
+        for row in pattern.layout:
             _popRow = []
             for cell in row:
                 if cell:

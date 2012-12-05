@@ -15,9 +15,11 @@ import random
 class Universe(object):
     """Implements a Universe of living/dead cells.
     """
-    def __init__(self, auto=False, rows=10, columns=10):
+    def __init__(self, auto=False, rows=10, columns=10, expand=False):
         """Initialize the Universe.
         """
+        # if true, the universe will automatically expand when necessary
+        self.expand = expand
         # if auto, fills the universe grid with random cells.
         if auto:
             self.autoFill(rows, columns)
@@ -69,6 +71,23 @@ class Universe(object):
             for cell in row:
                 cell.updateGen()
 
+        # Check of expansion is needed
+        if self.expand:
+            self.expandUniverse()
+
+    def expandUniverse(self):
+        if any(self.population[0]):
+            newRow = len(self.population[0]) * [Cell(DeadState())]
+            self.population.insert(0, newRow)
+        if any(self.population[-1]):
+            newRow = len(self.population[-1]) * [Cell(DeadState())]
+            self.population.append(newRow)
+
+        if any([row[0] for row in self.population]):
+            map(lambda row: row.insert(0, Cell(DeadState())), self.population)
+        if any([row[-1] for row in self.population]):
+            map(lambda row: row.append(Cell(DeadState())), self.population)
+
     def __eq__(self, other):
         if isinstance(other, Universe) and (self.getDimension() == other.getDimension()):
             for a, b in itertools.izip(self.population, other.population):
@@ -103,6 +122,9 @@ class DeadState(CellState):
         """
         return self.state
 
+    def __nonzero__(self):
+        return False
+
 
 class AliveState(CellState):
     """State representing Live Cell
@@ -114,6 +136,9 @@ class AliveState(CellState):
         """Checks whether the state is LiveState
         """
         return self.state
+
+    def __nonzero__(self):
+        return True
 
 
 class GenMap(object):
@@ -177,6 +202,8 @@ class Cell(object):
     def __str__(self):
         return self.isAlive() and 'X' or '-'
 
+    __nonzero__ = isAlive
+
 
 def test():
     """Test with sample inputs.
@@ -236,7 +263,7 @@ def test():
         print u, '\n'
 
     print '4 generations of a Random Cell Pattern'
-    u = Universe(auto=True)
+    u = Universe(auto=True, expand=True)
     for i in range(4):
         u.nextGeneration()
         print u, '\n'

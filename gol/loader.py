@@ -92,7 +92,7 @@ class RLELoader(object):
                         self.currentRow += num * [0]
                     elif char == '$':
                         self.pattern.addRow(self.currentRow)
-                    elif char == '!'
+                    elif char == '!':
                         break
                 digit = False
 
@@ -115,10 +115,10 @@ class PlainTextLoader(object):
                     self.pattern.addComment(line[1:])
                 else:
                     row = []
-                    for char in lines:
-                        if char == '-':
+                    for char in line:
+                        if char == '.':
                             row.append(0)
-                        elif char == 'o':
+                        elif char == 'O':
                             row.append(1)
                     self.pattern.addRow(row)
 
