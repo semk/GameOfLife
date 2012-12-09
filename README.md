@@ -13,6 +13,14 @@ The universe of the Game of Life is an infinite two-dimensional orthogonal grid 
 3. Any live cell with more than three live neighbours dies, as if by overcrowding.
 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
+## Prerequisites
+
+Install PyQt4:-
+
+Widows: Install PyQt4 binaries from [here](http://www.riverbankcomputing.com/software/pyqt/download)
+Linux: `sudo apt-get install python-qt4` (on Debian distributions) or `sudo yum install PyQt4` (on RPM distributions)
+Mac OSX: Install [PyQtX](http://sourceforge.net/projects/pyqtx/)
+
 ## License
 
 All source code is licensed under FreeBSD License. Please refer COPYING.
