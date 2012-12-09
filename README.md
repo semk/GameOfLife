@@ -1,6 +1,6 @@
 # Conway's Game of Life
 
-![Game Of Life in Fedora](/images/GameOfLife_Fedora.png)
+![Game Of Life in Fedora](https://raw.github.com/semk/GameOfLife/master/images/GameOfLife_Fedora.png)
 
 The Game of Life, also known simply as Life, is a cellular automaton devised by 
 the British mathematician John Horton Conway in 1970. The "game" is a 
