@@ -18,7 +18,9 @@ The universe of the Game of Life is an infinite two-dimensional orthogonal grid 
 Install PyQt4:-
 
 Widows: Install PyQt4 binaries from [here](http://www.riverbankcomputing.com/software/pyqt/download)
+
 Linux: `sudo apt-get install python-qt4` (on Debian distributions) or `sudo yum install PyQt4` (on RPM distributions)
+
 Mac OSX: Install [PyQtX](http://sourceforge.net/projects/pyqtx/)
 
 ## License
